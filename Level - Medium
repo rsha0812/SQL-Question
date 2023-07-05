@@ -1,1 +1,102 @@
+'''
+Topic : SQL 
+Level : Medium 
+Resouce : sql-practise - Practise Question 
+'''
 
+---Q1) Show patient_id and first_name from patients where their first_name start and ends with 's' and is at least 6 characters long.
+
+----Sol1: 
+select patient_id, first_name from patients
+where first_name like 's%' and first_name like '%s'
+and (len(first_name) = 6 or len(first_name) > 6);
+
+----Sol2: 
+SELECT
+  patient_id,
+  first_name
+FROM patients
+WHERE first_name LIKE 's____%s';
+
+
+---Q2) Show patient_id, first_name, last_name from patients whos diagnosis is 'Dementia'.Primary diagnosis is stored in the admissions table.
+
+----Sol: 
+select p.patient_id, first_name, last_name 
+from patients p join admissions a
+on p.patient_id = a.patient_id
+where diagnosis = 'Dementia';
+
+---Q3) Display every patient's first_name. Order the list by the length of each name and then by alphbetically.
+
+----Sol: 
+select first_name
+from patients
+order by len(first_name) asc, first_name asc;
+
+----Q4) Show the total amount of male patients and the total amount of female patients in the patients table. Display the two results in the same row.
+
+----Sol: 
+select (select count(*) 
+from patients
+where gender = 'M') as male_count,
+(select count(*) 
+from patients
+where gender = 'F')as female_count;
+
+
+----Q5) Show first and last name, allergies from patients which have allergies to either 'Penicillin' or 'Morphine'. 
+-- Show results ordered ascending by allergies then by first_name then by last_name.
+
+----Sol: 
+select first_name,last_name, allergies
+from patients
+where allergies in ('Penicillin', 'Morphine') 
+order by allergies, first_name, last_name asc;
+
+
+----Q6) Show patient_id, diagnosis from admissions. Find patients admitted multiple times for the same diagnosis.
+
+----Sol: 
+SELECT
+  patient_id,
+  diagnosis
+FROM admissions
+GROUP BY
+  patient_id,
+  diagnosis
+HAVING COUNT(*) > 1;
+
+----Q7) Show the city and the total number of patients in the city. Order from most to least patients and then by city name ascending.
+
+----Sol: 
+select city, count(city) as total_number_pateint
+from patients
+group by city
+order by total_number_pateint desc, city asc;
+
+
+----Q8) Show first name, last name and role of every person that is either patient or doctor. The roles are either "Patient" or "Doctor"
+
+-----Sol: 
+SELECT first_name, last_name, 'Patient' as role FROM patients
+    union all
+select first_name, last_name, 'Doctor' from doctors;
+
+-----Q9) Show all allergies ordered by popularity. Remove NULL values from query.
+
+-----Sol: 
+select allergies, count(1) as popularity from patients
+where allergies is not null
+group by allergies
+order by popularity desc;
+
+
+-----Q10) Show all patient's first_name, last_name, and birth_date who were born in the 1970s decade. 
+---Sort the list starting from the earliest birth_date.
+
+----Sol: 
+select first_name, last_name, birth_date 
+from patients
+where year(birth_date) between 1970 and 1979
+order by birth_date ASC;

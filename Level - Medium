@@ -145,3 +145,82 @@ WHERE patient_id = 542
 GROUP BY patient_id
 HAVING
   admission_date = MAX(admission_date);
+
+
+-------Q16) Show patient_id, attending_doctor_id, and diagnosis for admissions that match one of the two criteria:
+-- 1. patient_id is an odd number and attending_doctor_id is either 1, 5, or 19.
+-- 2. attending_doctor_id contains a 2 and the length of patient_id is 3 characters.
+
+-----Sol: 
+select patient_id, attending_doctor_id, diagnosis 
+from admissions
+where ((patient_id%2 = 1) and attending_doctor_id in (1,5,19)) 
+OR 
+(attending_doctor_id like '%2%' and len(patient_id) = 3);
+
+-------Q17) Show first_name, last_name, and the total number of admissions attended for each doctor.
+-- Every admission has been attended by a doctor.
+
+-----Sol: 
+select first_name, last_name, count(admission_date) as total_admission
+from admissions adm join doctors doc
+on adm.attending_doctor_id = doc.doctor_id
+group by attending_doctor_id;
+
+
+-------Q18) For each doctor, display their id, full name, and the first and last admission date they attended.
+
+-----Sol : 
+select doctor_id,CONCAT(first_name," ",last_name) as full_name, 
+min(admission_date) as first_admission_date, MAX(admission_date) as last_admission_date
+from admissions adm join doctors doc
+on adm.attending_doctor_id = doc.doctor_id
+group by attending_doctor_id;
+
+--------Q19) Display the total amount of patients for each province. Order by descending.
+
+-----Sol: 
+select province_name , count(patient_id) as total_patients
+from patients pat join province_names prov 
+on pat.province_id = prov.province_id
+group by province_name
+order by total_patients desc ;
+
+
+-------Q20) For every admission, display the patient's full name, their admission diagnosis, and their doctor's full name who diagnosed their problem.
+
+------Sol: 
+select concat(pat.first_name," ",pat.last_name) as patient_full_name, diagnosis,
+concat(doc.first_name," ",doc.last_name) as doctor_full_name
+from patients pat join admissions adm 
+on pat.patient_id = adm.patient_id
+join doctors doc 
+on adm.attending_doctor_id = doc.doctor_id
+
+
+-------Q21) display the number of duplicate patients based on their first_name and last_name.
+
+-----Sol: 
+select first_name,last_name,count(*) as dup_number_patient
+from patients 
+group by first_name,last_name
+having dup_number_patient > 1;
+
+
+--------Q22) Display patient's full name,
+-- height in the units feet rounded to 1 decimal,
+-- weight in the unit pounds rounded to 0 decimals,
+-- birth_date,
+-- gender non abbreviated.
+
+-- Convert CM to feet by dividing by 30.48.
+-- Convert KG to pounds by multiplying by 2.205.
+
+------Sol: 
+select concat(first_name," ",last_name) as full_name, 
+round((height/30.48),1) as height_in_feet, 
+round((weight*2.205),0) as weight_in_pound,
+birth_date, 
+case when gender = 'M' then 'Male'
+when gender = 'F' then 'Female' end as gender_type
+from patients
